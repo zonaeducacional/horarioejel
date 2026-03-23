@@ -22,8 +22,13 @@ export default defineConfig(({mode}) => {
           display: 'standalone',
           icons: [
             {
-              src: 'https://dev5.neocities.org/6/logo.png',
-              sizes: 'any',
+              src: '/icon-192x192.png',
+              sizes: '192x192',
+              type: 'image/png'
+            },
+            {
+              src: '/icon-512x512.png',
+              sizes: '512x512',
               type: 'image/png',
               purpose: 'any maskable'
             }
