@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Clock as ClockIcon, Timer, BookOpen, Coffee } from 'lucide-react';
 import { format, isWithinInterval, parse, addMinutes, differenceInMinutes } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { SchoolData, TIME_SLOTS_MORNING, TIME_SLOTS_AFTERNOON } from '../lib/data';
 import { cn } from '../lib/utils';
 
@@ -69,7 +70,7 @@ export const Clock: React.FC<ClockProps> = ({ selectedTurn, selectedClass, selec
                 {format(now, 'HH:mm')}
               </h2>
               <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">
-                {format(now, "EEEE, d 'de' MMMM", { locale: undefined })}
+                {format(now, "EEEE, d 'de' MMMM", { locale: ptBR })}
               </p>
             </div>
           </div>
