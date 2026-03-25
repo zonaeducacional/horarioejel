@@ -29,6 +29,7 @@ export default function App() {
   const [day, setDay] = useState(DAYS[0]);
   const [selectedClass, setSelectedClass] = useState(Object.keys(SCHOOL_DATA.morning)[0]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [scheduleView, setScheduleView] = useState<'single' | 'integral'>('single');
 
   const { permission, requestPermission } = useNotifications(turn, selectedClass, day, SCHOOL_DATA);
 
@@ -144,27 +145,29 @@ export default function App() {
           </div>
 
           {/* Class Selector - Horizontal Scroll */}
-          <div className="space-y-3">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center justify-center gap-2">
-              <Users className="w-3 h-3" /> Turma
-            </label>
-            <div className="flex items-center justify-center gap-2 flex-wrap">
-              {Object.keys(SCHOOL_DATA[turn]).map((className) => (
-                <button
-                  key={className}
-                  onClick={() => setSelectedClass(className)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-xl border transition-all font-bold text-[11px] whitespace-nowrap",
-                    selectedClass === className 
-                      ? "border-blue-500 bg-blue-500/20 text-blue-400 shadow-lg shadow-blue-500/10" 
-                      : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20"
-                  )}
-                >
-                  {className}
-                </button>
-              ))}
+          {scheduleView === 'single' && (
+            <div className="space-y-3">
+              <label className="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center justify-center gap-2">
+                <Users className="w-3 h-3" /> Turma
+              </label>
+              <div className="flex items-center justify-center gap-2 flex-wrap">
+                {Object.keys(SCHOOL_DATA[turn]).map((className) => (
+                  <button
+                    key={className}
+                    onClick={() => setSelectedClass(className)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-xl border transition-all font-bold text-[11px] whitespace-nowrap",
+                      selectedClass === className 
+                        ? "border-blue-500 bg-blue-500/20 text-blue-400 shadow-lg shadow-blue-500/10" 
+                        : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20"
+                    )}
+                  >
+                    {className}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Day Selector - Horizontal Scroll */}
           <div className="space-y-3">
@@ -192,84 +195,165 @@ export default function App() {
 
         {/* Main Schedule Content */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
             <h2 className="text-2xl font-bold text-white font-syne">Quadro de Horários</h2>
-            <div className="flex items-center gap-2 bg-white/5 p-1 rounded-xl border border-white/10">
-              <button 
-                onClick={() => setViewMode('list')}
-                className={cn("p-2 rounded-lg transition-all", viewMode === 'list' ? "bg-white/10 text-blue-400" : "text-slate-500")}
-              >
-                <List className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => setViewMode('grid')}
-                className={cn("p-2 rounded-lg transition-all", viewMode === 'grid' ? "bg-white/10 text-blue-400" : "text-slate-500")}
-              >
-                <LayoutGrid className="w-4 h-4" />
-              </button>
+            <div className="flex items-center gap-4">
+              {/* View Type Toggle */}
+              <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
+                <button 
+                  onClick={() => setScheduleView('single')}
+                  className={cn("px-3 py-1.5 rounded-lg text-xs font-bold transition-all", scheduleView === 'single' ? "bg-white/10 text-white" : "text-slate-500")}
+                >
+                  Turma
+                </button>
+                <button 
+                  onClick={() => setScheduleView('integral')}
+                  className={cn("px-3 py-1.5 rounded-lg text-xs font-bold transition-all", scheduleView === 'integral' ? "bg-white/10 text-white" : "text-slate-500")}
+                >
+                  Integral
+                </button>
+              </div>
+
+              {/* Layout Toggle (Only for single view) */}
+              {scheduleView === 'single' && (
+                <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
+                  <button 
+                    onClick={() => setViewMode('list')}
+                    className={cn("p-2 rounded-lg transition-all", viewMode === 'list' ? "bg-white/10 text-blue-400" : "text-slate-500")}
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => setViewMode('grid')}
+                    className={cn("p-2 rounded-lg transition-all", viewMode === 'grid' ? "bg-white/10 text-blue-400" : "text-slate-500")}
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className={cn(
-            "grid gap-4",
-            viewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
-          )}>
-            <AnimatePresence mode="popLayout">
-              {timeSlots.map((slot, index) => {
-                const subject = currentSchedule[slot];
-                const isInterval = slot === '09:45–10:00' || slot === '15:15–15:30';
-                
-                return (
-                  <motion.div
-                    key={`${selectedClass}-${day}-${slot}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ delay: index * 0.05 }}
-                    className={cn(
-                      "relative overflow-hidden p-6 rounded-3xl border transition-all group",
-                      isInterval 
-                        ? "bg-amber-500/10 border-amber-500/20" 
-                        : subject 
-                          ? "glass hover:bg-white/5 border-white/10 hover:border-blue-500/30 shadow-lg" 
-                          : "bg-white/5 border-dashed border-white/10 opacity-50"
-                    )}
-                  >
-                    <div className="flex items-center justify-between relative z-10">
-                      <div className="flex items-center gap-4">
-                        <div className={cn(
-                          "w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm",
-                          isInterval ? "bg-amber-500/20 text-amber-400" : subject ? "bg-blue-500/20 text-blue-400" : "bg-white/5 text-slate-500"
-                        )}>
-                          <ClockIcon className="w-5 h-5" />
+          {scheduleView === 'single' ? (
+            <div className={cn(
+              "grid gap-4",
+              viewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
+            )}>
+              <AnimatePresence mode="popLayout">
+                {timeSlots.map((slot, index) => {
+                  const subject = currentSchedule[slot];
+                  const isInterval = slot === '09:45–10:00' || slot === '15:15–15:30';
+                  
+                  return (
+                    <motion.div
+                      key={`${selectedClass}-${day}-${slot}`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ delay: index * 0.05 }}
+                      className={cn(
+                        "relative overflow-hidden p-6 rounded-3xl border transition-all group",
+                        isInterval 
+                          ? "bg-amber-500/10 border-amber-500/20" 
+                          : subject 
+                            ? "glass hover:bg-white/5 border-white/10 hover:border-blue-500/30 shadow-lg" 
+                            : "bg-white/5 border-dashed border-white/10 opacity-50"
+                      )}
+                    >
+                      <div className="flex items-center justify-between relative z-10">
+                        <div className="flex items-center gap-4">
+                          <div className={cn(
+                            "w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm",
+                            isInterval ? "bg-amber-500/20 text-amber-400" : subject ? "bg-blue-500/20 text-blue-400" : "bg-white/5 text-slate-500"
+                          )}>
+                            <ClockIcon className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-slate-500 mb-0.5">{slot}</p>
+                            <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">
+                              {isInterval ? 'Intervalo' : subject?.name || 'Vago'}
+                            </h3>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-500 mb-0.5">{slot}</p>
-                          <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">
-                            {isInterval ? 'Intervalo' : subject?.name || 'Vago'}
-                          </h3>
-                        </div>
+
+                        {subject && !isInterval && (
+                          <div className={cn(
+                            "px-4 py-2 rounded-xl text-xs font-bold border",
+                            subject.color.replace('bg-', 'bg-opacity-20 bg-').replace('text-', 'text-opacity-90 text-')
+                          )}>
+                            {subject.teacher}
+                          </div>
+                        )}
                       </div>
 
-                      {subject && !isInterval && (
-                        <div className={cn(
-                          "px-4 py-2 rounded-xl text-xs font-bold border",
-                          subject.color.replace('bg-', 'bg-opacity-20 bg-').replace('text-', 'text-opacity-90 text-')
-                        )}>
-                          {subject.teacher}
-                        </div>
+                      {/* Decorative elements */}
+                      {!isInterval && subject && (
+                        <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors" />
                       )}
-                    </div>
-
-                    {/* Decorative elements */}
-                    {!isInterval && subject && (
-                      <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors" />
-                    )}
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="overflow-x-auto rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl"
+            >
+              <table className="w-full text-left border-collapse min-w-[600px]">
+                <thead>
+                  <tr className="border-b border-white/10 bg-white/5">
+                    <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-400 w-32">Horário</th>
+                    {Object.keys(SCHOOL_DATA[turn]).map(className => (
+                      <th key={className} className="p-4 text-sm font-bold text-white text-center">{className}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {timeSlots.map((slot) => {
+                    const isInterval = slot === '09:45–10:00' || slot === '15:15–15:30';
+                    return (
+                      <tr key={slot} className="hover:bg-white/5 transition-colors">
+                        <td className="p-4 text-xs font-mono font-medium text-slate-400 whitespace-nowrap">
+                          {slot}
+                        </td>
+                        {isInterval ? (
+                          <td colSpan={Object.keys(SCHOOL_DATA[turn]).length} className="p-4 text-center">
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-400 text-xs font-bold border border-amber-500/20 shadow-sm">
+                              <ClockIcon className="w-3 h-3" />
+                              Intervalo
+                            </div>
+                          </td>
+                        ) : (
+                          Object.keys(SCHOOL_DATA[turn]).map(className => {
+                            const subject = SCHOOL_DATA[turn][className][day]?.[slot];
+                            return (
+                              <td key={className} className="p-3 text-center">
+                                {subject ? (
+                                  <div className={cn(
+                                    "inline-flex flex-col items-center justify-center w-full min-h-[64px] p-2 rounded-xl border shadow-sm transition-all hover:scale-[1.02]",
+                                    subject.color.replace('bg-', 'bg-opacity-10 bg-').replace('text-', 'text-opacity-90 text-')
+                                  )}>
+                                    <span className="text-sm font-bold">{subject.name}</span>
+                                    <span className="text-[10px] font-medium opacity-80 mt-0.5">{subject.teacher}</span>
+                                  </div>
+                                ) : (
+                                  <div className="w-full min-h-[64px] rounded-xl border border-dashed border-white/10 flex items-center justify-center bg-white/5">
+                                    <span className="text-xs text-slate-600 font-medium">Vago</span>
+                                  </div>
+                                )}
+                              </td>
+                            );
+                          })
+                        )}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </motion.div>
+          )}
 
           {/* Diary Section */}
           <Diary selectedClass={selectedClass} selectedDay={day} />
