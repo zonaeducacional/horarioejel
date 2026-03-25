@@ -301,12 +301,12 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               className="overflow-x-auto rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl"
             >
-              <table className="w-full text-left border-collapse min-w-[600px]">
+              <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-white/10 bg-white/5">
-                    <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-400 w-32">Horário</th>
+                    <th className="p-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 w-16 text-center">Horário</th>
                     {Object.keys(SCHOOL_DATA[turn]).map(className => (
-                      <th key={className} className="p-4 text-sm font-bold text-white text-center">{className}</th>
+                      <th key={className} className="p-2 text-xs font-bold text-white text-center">{className}</th>
                     ))}
                   </tr>
                 </thead>
@@ -315,13 +315,13 @@ export default function App() {
                     const isInterval = slot === '09:45–10:00' || slot === '15:15–15:30';
                     return (
                       <tr key={slot} className="hover:bg-white/5 transition-colors">
-                        <td className="p-4 text-xs font-mono font-medium text-slate-400 whitespace-nowrap">
+                        <td className="p-2 text-[10px] font-mono font-medium text-slate-400 whitespace-nowrap text-center">
                           {slot}
                         </td>
                         {isInterval ? (
-                          <td colSpan={Object.keys(SCHOOL_DATA[turn]).length} className="p-4 text-center">
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-400 text-xs font-bold border border-amber-500/20 shadow-sm">
-                              <ClockIcon className="w-3 h-3" />
+                          <td colSpan={Object.keys(SCHOOL_DATA[turn]).length} className="p-2 text-center">
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/10 text-amber-400 text-[10px] font-bold border border-amber-500/20 shadow-sm">
+                              <ClockIcon className="w-2.5 h-2.5" />
                               Intervalo
                             </div>
                           </td>
@@ -329,18 +329,18 @@ export default function App() {
                           Object.keys(SCHOOL_DATA[turn]).map(className => {
                             const subject = SCHOOL_DATA[turn][className][day]?.[slot];
                             return (
-                              <td key={className} className="p-3 text-center">
+                              <td key={className} className="p-1 text-center">
                                 {subject ? (
                                   <div className={cn(
-                                    "inline-flex flex-col items-center justify-center w-full min-h-[64px] p-2 rounded-xl border shadow-sm transition-all hover:scale-[1.02]",
+                                    "inline-flex flex-col items-center justify-center w-full min-h-[48px] p-1.5 rounded-lg border shadow-sm transition-all hover:scale-[1.02]",
                                     subject.color.replace('bg-', 'bg-opacity-10 bg-').replace('text-', 'text-opacity-90 text-')
                                   )}>
-                                    <span className="text-sm font-bold">{subject.name}</span>
-                                    <span className="text-[10px] font-medium opacity-80 mt-0.5">{subject.teacher}</span>
+                                    <span className="text-[11px] font-bold leading-none mb-0.5">{subject.name}</span>
+                                    <span className="text-[9px] font-medium opacity-80">{subject.teacher}</span>
                                   </div>
                                 ) : (
-                                  <div className="w-full min-h-[64px] rounded-xl border border-dashed border-white/10 flex items-center justify-center bg-white/5">
-                                    <span className="text-xs text-slate-600 font-medium">Vago</span>
+                                  <div className="w-full min-h-[48px] rounded-lg border border-dashed border-white/10 flex items-center justify-center bg-white/5">
+                                    <span className="text-[10px] text-slate-600 font-medium">Vago</span>
                                   </div>
                                 )}
                               </td>
